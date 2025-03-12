@@ -1,4 +1,4 @@
-# PowerShell Script to Populate Active Directory with Random Users, Computers, Groups and OUs
+# Active Directory'yi Rastgele Kullanıcılar, Bilgisayarlar, Gruplar ve OUs ile Dolduran PowerShell Betiği
 
 param (
     [int]$UserCount = 1000,
@@ -6,13 +6,13 @@ param (
     [int]$ComputerCount = 200
 )
 
-# Organisation Units (OU) make
+# Organizasyon Birimlerini (OU) Oluşturma
 $OUs = @("HR", "IT", "Sales", "Finance", "Security", "Marketing")
 foreach ($ou in $OUs) {
     New-ADOrganizationalUnit -Name $ou -Path "DC=example,DC=com" -ErrorAction SilentlyContinue
 }
 
-# Random User
+# Rastgele Kullanıcılar Oluşturma
 for ($i = 1; $i -le $UserCount; $i++) {
     $FirstName = (Get-Random -InputObject @("John", "Jane", "Mike", "Emily", "Chris", "Anna"))
     $LastName = (Get-Random -InputObject @("Smith", "Doe", "Johnson", "Brown", "Davis"))
@@ -24,20 +24,20 @@ for ($i = 1; $i -le $UserCount; $i++) {
         -Path "OU=$OU,DC=example,DC=com" -AccountPassword $Password -Enabled $true -PasswordNeverExpires $true -ErrorAction SilentlyContinue
 }
 
-# Random PC
+# Rastgele Bilgisayarlar Oluşturma
 for ($i = 1; $i -le $ComputerCount; $i++) {
     $ComputerName = "PC$i"
     $OU = Get-Random -InputObject $OUs
     New-ADComputer -Name $ComputerName -Path "OU=$OU,DC=example,DC=com" -Enabled $true -ErrorAction SilentlyContinue
 }
 
-# Random Group
+# Rastgele Gruplar Oluşturma
 for ($i = 1; $i -le $GroupCount; $i++) {
     $GroupName = "Group$i"
     New-ADGroup -Name $GroupName -GroupScope Global -Path "DC=example,DC=com" -ErrorAction SilentlyContinue
 }
 
-# Random Assaignment the User
+# Kullanıcıları Rastgele Gruplara Atama
 $Users = Get-ADUser -Filter * | Select-Object -ExpandProperty SamAccountName
 $Groups = Get-ADGroup -Filter * | Select-Object -ExpandProperty Name
 
@@ -46,4 +46,4 @@ foreach ($user in $Users) {
     Add-ADGroupMember -Identity $RandomGroup -Members $user -ErrorAction SilentlyContinue
 }
 
-Write-Host "Active Directory environment make succesfuly!"
+Write-Host "Active Directory ortamı başarıyla oluşturuldu!"
